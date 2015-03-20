@@ -15,16 +15,16 @@ public enum TokenType {
 	STRUCT,
 	
 	// types
-	VOID,
-	SHORT,
-	LONG,
-	SIGNED,
-	UNSIGNED,
-	INT,
-	CHAR,
-	FLOAT,
-	DOUBLE,
-	BOOL,
+	VOID(TokenFlags.TYPE),
+	SHORT(TokenFlags.TYPE),
+	LONG(TokenFlags.TYPE),
+	SIGNED(TokenFlags.TYPE),
+	UNSIGNED(TokenFlags.TYPE),
+	INT(TokenFlags.TYPE),
+	CHAR(TokenFlags.TYPE),
+	FLOAT(TokenFlags.TYPE),
+	DOUBLE(TokenFlags.TYPE),
+	BOOL(TokenFlags.TYPE),
 	
 	// operators
 	EQ,
@@ -79,4 +79,19 @@ public enum TokenType {
 	
 	// identifiers
 	IDENT,
+	;
+	
+	private final int flags;
+	
+	private TokenType() {
+		this(0);
+	}
+	
+	private TokenType(int flags) {
+		this.flags = flags;
+	}
+	
+	public boolean isType() {
+		return (flags & TokenFlags.TYPE) != 0;
+	}
 }
