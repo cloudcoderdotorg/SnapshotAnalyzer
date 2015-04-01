@@ -117,6 +117,8 @@ public class CLooseParser {
 					throw new ParserException(seq, "Unexpected token following parameter list");
 				}
 			}
+		} else {
+			throw new ParserException(seq, "Unknown declarator");
 		}
 		return declarator;
 	}

@@ -45,6 +45,6 @@ public class TokenSequence {
 
 	public String getWhere() {
 		Token where = isFinished() ? tokens.get(tokens.size() - 1) : tokens.get(pos);
-		return "Line " + (where.getPosition().getRow() + 1);
+		return (where.getPosition().getRow() + 1) + ":" + where.getTokenType() + ":";
 	}
 }
