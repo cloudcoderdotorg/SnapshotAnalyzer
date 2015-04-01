@@ -3,48 +3,84 @@ package org.cloudcoder.snapshotanalzyer;
 import java.util.List;
 
 public class CLooseParser {
-	public CLooseParser() {
+	private TokenSequence seq;
+	
+	public CLooseParser(List<Token> tokens) {
+		seq = new TokenSequence(tokens);
 	}
 	
-	public Node parse(List<Token> tokens) {
+	public Node parse() {
 		Node root = new Node(NodeType.ROOT);
 		
 		int pos = 0;
 		
-		while (pos < tokens.size()) {
-			Token first = tokens.get(pos);
+		while (!seq.isFinished()) {
+			Token first = seq.peek();
 			
 			if (first.getTokenType() == TokenType.INCLUDE) {
 				// include directive: parse until end of line
-				Node child = parseToEndOfLine(tokens, pos, NodeType.INCLUDE);
-				root.getChildren().add(child);
-				pos += child.getTokens().size();
+				pos += addToTree(root, parseToEndOfLine(NodeType.INCLUDE));
 			} else if (first.getTokenType() == TokenType.DEFINE) {
 				// define directive: parse until end of line
-				Node child = parseToEndOfLine(tokens, pos, NodeType.DEFINE);
-				root.getChildren().add(child);
-				pos += child.getTokens().size();
+				pos += addToTree(root, parseToEndOfLine(NodeType.DEFINE));
 			} else if (first.getTokenType().isType()) {
 				// this is probably a declaration
-				
+				pos += addToTree(root, parseDeclaration());
+			} else {
+				throw new IllegalStateException("Unknown construct");
 			}
 		}
 		
 		return root;
 	}
 
-	private Node parseToEndOfLine(List<Token> tokens, int pos, NodeType nodeType) {
-		int row = tokens.get(pos).getPosition().getRow();
-		Node child = new Node(nodeType);
-		child.getTokens().add(tokens.get(pos));
-		int next = pos+1;
-		while (next < tokens.size()) {
-			if (tokens.get(next).getPosition().getRow() == row) {
-				child.getTokens().add(tokens.get(next));
-			} else {
+	private int addToTree(Node parent, Node child) {
+		parent.getChildren().add(child);
+		int size = child.getTokens().size();
+		return size;
+	}
+
+	private Node parseToEndOfLine(NodeType nodeType) {
+		Node node = new Node(nodeType);
+		int row = seq.peek().getPosition().getRow();
+		while (!seq.isFinished()) {
+			if (seq.peek().getPosition().getRow() != row) {
 				break;
 			}
+			node.getTokens().add(seq.next());
 		}
-		return child;
+		return node;
+	}
+	
+	private Node parseDeclaration() {
+		Node decl = new Node(NodeType.DECLARATION);
+		
+		decl.getChildren().add(parseType());
+
+		// For now, just handle single variables and functions?
+		
+		return decl;
+	}
+
+	private Node parseType() {
+		Node type = new Node(NodeType.TYPE);
+		if (seq.peek().getTokenType().isType()) {
+			type.getTokens().add(seq.next());
+			return type;
+		} else if (seq.nextIs(TokenType.STRUCT)) {
+			type.getTokens().add(seq.next());
+			if (!seq.nextIs(TokenType.IDENT)) {
+				// TODO: recovery
+				throw new ParserException("Bad struct type");
+			}
+			type.getTokens().add(seq.next());
+			return type;
+		} else if (seq.nextIs(TokenType.IDENT)) {
+			// Assume this is a typedef?
+			type.getTokens().add(seq.next());
+			return type;
+		} else {
+			throw new ParserException("Bad type");
+		}
 	}
 }
