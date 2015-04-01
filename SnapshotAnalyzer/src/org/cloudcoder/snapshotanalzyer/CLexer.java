@@ -2,6 +2,7 @@ package org.cloudcoder.snapshotanalzyer;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.io.Reader;
 import java.util.Collections;
@@ -500,12 +501,19 @@ public class CLexer implements ILexer {
 	}
 	
 	public static void main(String[] args) throws IOException, LexerException {
+		/*
 		// Just for testing
 		@SuppressWarnings("resource")
 		Scanner keyboard = new Scanner(System.in);
 		System.out.println("Read which file: ");
 		String fileName = keyboard.nextLine();
-		try (FileReader r = new FileReader(fileName)) {
+		readTokens(new FileReader(fileName));
+		*/
+		readTokens(new InputStreamReader(System.in));
+	}
+
+	private static void readTokens(Reader fr) throws IOException, LexerException {
+		try (Reader r = fr) {
 			ILexer lexer = new CLexer(r);
 			while (true) {
 				Token t = lexer.readNext();

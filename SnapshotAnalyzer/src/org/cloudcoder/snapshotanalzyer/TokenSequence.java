@@ -30,7 +30,7 @@ public class TokenSequence {
 		return tokens.get(pos);
 	}
 	
-	public Token next() {
+	public Token consume() {
 		if (isFinished()) {
 			throw new IllegalArgumentException("No more tokens");
 		}
@@ -41,5 +41,10 @@ public class TokenSequence {
 
 	public boolean nextIs(TokenType type) {
 		return !isFinished() && tokens.get(pos).getTokenType() == type;
+	}
+
+	public String getWhere() {
+		Token where = isFinished() ? tokens.get(tokens.size() - 1) : tokens.get(pos);
+		return "Line " + (where.getPosition().getRow() + 1);
 	}
 }
