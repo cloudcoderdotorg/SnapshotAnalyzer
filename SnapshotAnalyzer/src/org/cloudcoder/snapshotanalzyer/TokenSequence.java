@@ -47,4 +47,13 @@ public class TokenSequence {
 		Token where = isFinished() ? tokens.get(tokens.size() - 1) : tokens.get(pos);
 		return (where.getPosition().getRow() + 1) + ":" + where.getTokenType() + ":";
 	}
+
+	public int findNext(TokenType type) {
+		for (int i = pos; i < tokens.size(); i++) {
+			if (tokens.get(i).getTokenType() == type) {
+				return i;
+			}
+		}
+		return -1;
+	}
 }

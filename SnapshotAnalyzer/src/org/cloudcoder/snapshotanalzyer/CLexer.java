@@ -1,6 +1,5 @@
 package org.cloudcoder.snapshotanalzyer;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PushbackReader;
@@ -8,7 +7,6 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.function.Predicate;
 
 /**
@@ -81,8 +79,8 @@ public class CLexer implements ILexer {
 		case ')': return readOne(TokenType.RPAREN);
 		case '[': return readOne(TokenType.LBRACKET);
 		case ']': return readOne(TokenType.RBRACKET);
-		case '{': return readOne(TokenType.LBRACKET);
-		case '}': return readOne(TokenType.RBRACKET);
+		case '{': return readOne(TokenType.LBRACE);
+		case '}': return readOne(TokenType.RBRACE);
 		
 		// Operators
 		case '+': return readPlusOp();

@@ -5,21 +5,17 @@ import java.util.List;
 
 public class Node {
 	private NodeType nodeType;
-	private List<Token> tokens;
 	private List<Node> children;
+	private int startPos, endPos;
 	
 	public Node(NodeType nodeType) {
 		this.nodeType = nodeType;
-		this.tokens = new ArrayList<>();
 		this.children = new ArrayList<>();
+		this.startPos = this.endPos = -1;
 	}
 	
 	public NodeType getNodeType() {
 		return nodeType;
-	}
-	
-	public List<Token> getTokens() {
-		return tokens;
 	}
 	
 	public List<Node> getChildren() {
@@ -29,5 +25,21 @@ public class Node {
 	@Override
 	public String toString() {
 		return nodeType.toString();
+	}
+	
+	public void setStartPos(int startPos) {
+		this.startPos = startPos;
+	}
+	
+	public int getStartPos() {
+		return startPos;
+	}
+	
+	public void setEndPos(int endPos) {
+		this.endPos = endPos;
+	}
+	
+	public int getEndPos() {
+		return endPos;
 	}
 }
