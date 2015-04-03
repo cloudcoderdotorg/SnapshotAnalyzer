@@ -244,10 +244,41 @@ public class CParser {
 		Node ifStmt = new Node(NodeType.IF_STATEMENT);
 		ifStmt.setStartPos(seq.getPos());
 		
+		parseGuardedStatement("if", ifStmt);
+		
+		// See if there is an else part
+		if (seq.nextIs(TokenType.ELSE)) {
+			seq.consume();
+			ifStmt.getChildren().add(parseStatement());
+		}
+		
+		ifStmt.setEndPos(seq.getPos());
+		
+		return ifStmt;
+	}
+
+	private Node parseWhileStatement() {
+		Node whileStmt = new Node(NodeType.WHILE_STATEMENT);
+		whileStmt.setStartPos(seq.getPos());
+		parseGuardedStatement("while", whileStmt);
+		whileStmt.setEndPos(seq.getPos());
+		return whileStmt;
+	}
+
+	private Node parseForStatement() {
+		Node forStmt = new Node(NodeType.FOR_STATEMENT);
+		forStmt.setStartPos(seq.getPos());
+		parseGuardedStatement("for", forStmt);
+		forStmt.setEndPos(seq.getPos());
+		return forStmt;
+	}
+
+	private void parseGuardedStatement(String kw, Node stmt) {
+		// Find guard expression
 		seq.consume();
 		if (!seq.nextIs(TokenType.LPAREN)) {
 			// TODO: recovery
-			throw new ParserException(seq, "if keyword not followed by left paren");
+			throw new ParserException(seq, kw + " keyword not followed by left paren");
 		}
 		
 		// Find matching right paren
@@ -261,28 +292,42 @@ public class CParser {
 		Node condition = new Node(NodeType.EXPRESSION);
 		condition.setStartPos(seq.getPos() + 1);
 		condition.setEndPos(rparen);
-		ifStmt.getChildren().add(condition);
+		stmt.getChildren().add(condition);
 		
 		// Parse child statement
 		seq.setPos(rparen+1);
 		Node body = parseStatement();
-		ifStmt.getChildren().add(body);
-		
-		ifStmt.setEndPos(seq.getPos());
-		
-		return ifStmt;
-	}
-
-	private Node parseWhileStatement() {
-		throw new ParserException(seq, "while statements not supported yet");
-	}
-
-	private Node parseForStatement() {
-		throw new ParserException(seq, "for statements not supported yet");
+		stmt.getChildren().add(body);
 	}
 
 	private Node parseDoWhileStatement() {
-		throw new ParserException(seq, "do/while statements not supported yet");
+		Node doWhileStmt = new Node(NodeType.DO_WHILE_STATEMENT);
+		
+		seq.consume();
+		doWhileStmt.getChildren().add(parseStatement());
+		if (!seq.nextIs(TokenType.WHILE)) {
+			// TODO: recover
+			throw new ParserException(seq, "Missing while after body of do/while");
+		}
+		seq.consume();
+		if (!seq.nextIs(TokenType.LPAREN)) {
+			// TODO: recover
+			throw new ParserException(seq, "Missing left parenthesis in condition of do/while");
+		}
+		int rparen = seq.findMatching(TokenType.LPAREN, TokenType.RPAREN);
+		if (rparen < 0) {
+			// TODO: recover
+			throw new ParserException(seq, "Could not find matching right parenthesis");
+		}
+		Node condition = new Node(NodeType.EXPRESSION);
+		condition.setStartPos(seq.getPos() + 1);
+		condition.setEndPos(rparen);
+		
+		seq.setPos(rparen+1);
+		
+		expect(TokenType.SEMI);
+		
+		return doWhileStmt;
 	}
 
 	private Node parseToNextSemi(NodeType type) {
