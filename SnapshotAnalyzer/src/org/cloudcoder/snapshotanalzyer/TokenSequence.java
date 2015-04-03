@@ -56,4 +56,26 @@ public class TokenSequence {
 		}
 		return -1;
 	}
+
+	public int findMatching(TokenType ldelim, TokenType rdelim) {
+		if (isFinished() || peek().getTokenType() != ldelim) {
+			throw new IllegalStateException("token sequence not positioned at " + ldelim);
+		}
+		int count = 1;
+		int i = pos+1;
+		while (true) {
+			if (i >= tokens.size()) {
+				// No matching right delimiter
+				return -1;
+			}
+			if (tokens.get(i).getTokenType() == ldelim) {
+				count++;
+			} else if (tokens.get(i).getTokenType() == rdelim) {
+				count--;
+				if (count == 0) {
+					return i;
+				}
+			}
+		}
+	}
 }

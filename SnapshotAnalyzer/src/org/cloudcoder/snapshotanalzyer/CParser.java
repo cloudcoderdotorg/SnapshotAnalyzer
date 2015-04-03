@@ -241,7 +241,23 @@ public class CParser {
 	}
 
 	private Node parseIfStatement() {
-		throw new ParserException(seq, "if statements not supported yet");
+		Node ifStmt = new Node(NodeType.IF_STATEMENT);
+		ifStmt.setStartPos(seq.getPos());
+		
+		seq.consume();
+		if (!seq.nextIs(TokenType.LPAREN)) {
+			// TODO: recovery
+			throw new ParserException(seq, "if keyword not followed by left paren");
+		}
+		
+		// Find matching right paren
+		int rparen = seq.findMatching(TokenType.LPAREN, TokenType.RPAREN);
+		
+		// TODO: parse statement, add child nodes
+		
+		ifStmt.setEndPos(seq.getPos());
+		
+		return ifStmt;
 	}
 
 	private Node parseWhileStatement() {

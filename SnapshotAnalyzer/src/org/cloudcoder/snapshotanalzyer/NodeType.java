@@ -14,4 +14,5 @@ public enum NodeType {
 	BLOCK_STATEMENT,
 	PARAMETER,
 	STATEMENT,
+	IF_STATEMENT,
 }
