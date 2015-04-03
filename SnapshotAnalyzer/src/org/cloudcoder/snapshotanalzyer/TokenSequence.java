@@ -76,6 +76,7 @@ public class TokenSequence {
 					return i;
 				}
 			}
+			i++;
 		}
 	}
 }

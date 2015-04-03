@@ -252,8 +252,21 @@ public class CParser {
 		
 		// Find matching right paren
 		int rparen = seq.findMatching(TokenType.LPAREN, TokenType.RPAREN);
+		if (rparen < 0) {
+			// TODO: recover
+			throw new ParserException(seq, "Could not find matching right parenthesis");
+		}
 		
-		// TODO: parse statement, add child nodes
+		// Add condition: note that we haven't actually parsed the expression
+		Node condition = new Node(NodeType.EXPRESSION);
+		condition.setStartPos(seq.getPos() + 1);
+		condition.setEndPos(rparen);
+		ifStmt.getChildren().add(condition);
+		
+		// Parse child statement
+		seq.setPos(rparen+1);
+		Node body = parseStatement();
+		ifStmt.getChildren().add(body);
 		
 		ifStmt.setEndPos(seq.getPos());
 		

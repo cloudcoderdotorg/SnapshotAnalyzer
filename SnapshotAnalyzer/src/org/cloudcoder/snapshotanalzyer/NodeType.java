@@ -15,4 +15,6 @@ public enum NodeType {
 	PARAMETER,
 	STATEMENT,
 	IF_STATEMENT,
+	
+	EXPRESSION,
 }
