@@ -145,6 +145,22 @@ public class CParser {
 					// TODO: recover
 					throw new ParserException(seq, "Unexpected token following parameter list");
 				}
+			} else if (seq.nextIs(TokenType.ASSIGN)) {
+				// Variable declaration with an initializer.
+				seq.consume();
+				int end = seq.findAtSameNestingLevel(t -> isSequencePoint(t));
+				if (end < 0) {
+					// TODO: recover
+					throw new ParserException(seq, "unterminated variable initializer");
+				}
+				Node initializer = new Node(NodeType.INITIALIZER);
+				initializer.setStartPos(seq.getPos());
+				initializer.setEndPos(end);
+				declarator.getChildren().add(initializer);
+				seq.setPos(end);
+			} else if (!isSequencePoint(seq.peek())) {
+				// TODO: recover
+				throw new ParserException(seq, "declarator unexpectedly terminated");
 			}
 		} else {
 			throw new ParserException(seq, "Unknown declarator");
@@ -153,6 +169,14 @@ public class CParser {
 		declarator.setEndPos(seq.getPos());
 		
 		return declarator;
+	}
+
+	/**
+	 * @param t
+	 * @return
+	 */
+	private boolean isSequencePoint(Token t) {
+		return t.getTokenType() == TokenType.COMMA || t.getTokenType() == TokenType.SEMI;
 	}
 
 	private Node parseParameterList() {
@@ -234,7 +258,12 @@ public class CParser {
 		} else if (seq.nextIs(TokenType.DO)) {
 			return parseDoWhileStatement();
 		} else if (nextIsType()) {
-			return parseDeclaration();
+			Node decl = parseDeclaration();
+			if (seq.nextIs(TokenType.SEMI)) {
+				seq.consume();
+				decl.setEndPos(seq.getPos());
+			}
+			return decl;
 		} else {
 			// Are there other types of statements?
 			// Do we need to be interested in the code within statements?

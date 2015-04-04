@@ -1,6 +1,7 @@
 package org.cloudcoder.snapshotanalzyer;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 public class TokenSequence {
 	private List<Token> tokens;
@@ -94,5 +95,27 @@ public class TokenSequence {
 
 	public Token get(int index) {
 		return tokens.get(index);
+	}
+	
+	public int findAtSameNestingLevel(Predicate<Token> pred) {
+		int nparen=0, nbracket=0, nbrace=0;
+		for (int i = pos; i < tokens.size(); i++) {
+			Token t = tokens.get(i);
+			if (nparen <= 0 && nbracket <= 0 && nbrace <= 0 && pred.test(t)) {
+				// Found!
+				return i;
+			} else {
+				switch (t.getTokenType()) {
+				case LPAREN: nparen++; break;
+				case RPAREN: nparen--; break;
+				case LBRACKET: nbracket++; break;
+				case RBRACKET: nbracket--; break;
+				case LBRACE: nbrace++; break;
+				case RBRACE: nbrace--; break;
+				default: break;
+				}
+			}
+		}
+		return -1;
 	}
 }
