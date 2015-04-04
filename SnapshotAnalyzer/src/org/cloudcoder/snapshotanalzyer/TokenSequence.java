@@ -43,6 +43,18 @@ public class TokenSequence {
 		return !isFinished() && tokens.get(pos).getTokenType() == type;
 	}
 
+	public boolean nextAre(TokenType... types) {
+		if (pos + types.length > tokens.size()) {
+			return false;
+		}
+		for (int i = 0; i < types.length; i++) {
+			if (tokens.get(pos+i).getTokenType() != types[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public String getWhere() {
 		Token where = isFinished() ? tokens.get(tokens.size() - 1) : tokens.get(pos);
 		return (where.getPosition().getRow() + 1) + ":" + where.getTokenType() + ":";
@@ -78,5 +90,9 @@ public class TokenSequence {
 			}
 			i++;
 		}
+	}
+
+	public Token get(int index) {
+		return tokens.get(index);
 	}
 }

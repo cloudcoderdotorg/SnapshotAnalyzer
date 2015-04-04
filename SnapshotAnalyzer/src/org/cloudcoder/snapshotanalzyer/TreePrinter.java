@@ -41,9 +41,11 @@ public class TreePrinter {
 	}
 	
 	private Stack<Item> stack;
+	private TokenSequence seq;
 	
-	public TreePrinter() {
-		stack = new Stack<Item>();
+	public TreePrinter(TokenSequence seq) {
+		this.stack = new Stack<Item>();
+		this.seq = seq;
 	}
 	
 	public void print(Node node) {
@@ -72,6 +74,6 @@ public class TreePrinter {
 			}
 		}
 		
-		System.out.println(node.toString());
+		System.out.println(node.asString(seq));
 	}
 }

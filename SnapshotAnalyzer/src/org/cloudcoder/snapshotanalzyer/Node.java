@@ -22,9 +22,15 @@ public class Node {
 		return children;
 	}
 	
-	@Override
-	public String toString() {
-		return nodeType.toString();
+	public String asString(TokenSequence seq) {
+		StringBuilder buf = new StringBuilder();
+		buf.append(nodeType.toString());
+		if (startPos >= 0) {
+			buf.append("[\"");
+			buf.append(seq.get(startPos).getLexeme());
+			buf.append("\"]");
+		}
+		return buf.toString();
 	}
 	
 	public void setStartPos(int startPos) {

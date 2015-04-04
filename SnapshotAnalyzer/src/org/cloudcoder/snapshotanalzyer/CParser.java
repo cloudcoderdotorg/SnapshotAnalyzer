@@ -16,8 +16,8 @@ import java.util.Scanner;
 public class CParser {
 	private TokenSequence seq;
 	
-	public CParser(List<Token> tokens) {
-		seq = new TokenSequence(tokens);
+	public CParser(TokenSequence seq) {
+		this.seq = seq;
 	}
 	
 	public Node parse() {
@@ -233,11 +233,30 @@ public class CParser {
 			return parseForStatement();
 		} else if (seq.nextIs(TokenType.DO)) {
 			return parseDoWhileStatement();
+		} else if (nextIsType()) {
+			return parseDeclaration();
 		} else {
 			// Are there other types of statements?
 			// Do we need to be interested in the code within statements?
 			return parseToNextSemi(NodeType.STATEMENT);
 		}
+	}
+
+	private boolean nextIsType() {
+		// Note that we will not recognize typedef'ed types here,
+		// which is probably fine considering that we're analyzing
+		// code written by novice programmers.
+		if (seq.isFinished()) {
+			return false;
+		}
+		Token t = seq.peek();
+		if (t.getTokenType().isType()) {
+			return true;
+		}
+		if (seq.nextAre(TokenType.STRUCT, TokenType.IDENT)) {
+			return true;
+		}
+		return false;
 	}
 
 	private Node parseIfStatement() {
@@ -361,9 +380,10 @@ public class CParser {
 			CLexer lexer = new CLexer(r);
 			List<Token> tokens = LexerUtil.readAll(lexer);
 			System.out.println("Read " + tokens.size() + " tokens");
-			CParser parser = new CParser(tokens);
+			TokenSequence seq = new TokenSequence(tokens);
+			CParser parser = new CParser(seq);
 			Node unit = parser.parse();
-			TreePrinter tp = new TreePrinter();
+			TreePrinter tp = new TreePrinter(seq);
 			tp.print(unit);
 		}
 	}
